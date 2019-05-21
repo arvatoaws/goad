@@ -148,7 +148,7 @@ func (infra *AwsInfrastructure) Setup() (func(), error) {
 	}
 	infra.queueURL = queueURL
 	return func() {
-
+		infra.teardown()
 	}, nil
 }
 
