@@ -19,10 +19,10 @@ import (
 	ini "gopkg.in/ini.v1"
 
 	"github.com/dustin/go-humanize"
-	"github.com/goadapp/goad/goad"
-	"github.com/goadapp/goad/goad/types"
-	"github.com/goadapp/goad/result"
-	"github.com/goadapp/goad/version"
+	"github.com/JanBerktold/goad/goad"
+	"github.com/JanBerktold/goad/goad/types"
+	"github.com/JanBerktold/goad/result"
+	"github.com/JanBerktold/goad/version"
 	"github.com/nsf/termbox-go"
 )
 

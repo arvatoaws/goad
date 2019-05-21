@@ -17,7 +17,7 @@ BUILD := `git rev-parse HEAD`
 TIMESTAMP := `git log -1 --date=format:%Y%m%d%H%M --pretty=format:%cd`
 
 # Use linker flags to provide version/build settings to the target
-LDFLAGS = -ldflags "-X=github.com/goadapp/goad/version.version=$(VERSION) -X=github.com/goadapp/goad/version.build=$(BUILD) -X=github.com/goadapp/goad/version.travisTag=$(TRAVIS_TAG)"
+LDFLAGS = -ldflags "-X=github.com/JanBerktold/goad/version.version=$(VERSION) -X=github.com/JanBerktold/goad/version.build=$(BUILD) -X=github.com/JanBerktold/goad/version.travisTag=$(TRAVIS_TAG)"
 
 # go source files, ignore vendor directory
 SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
@@ -44,7 +44,7 @@ lambda:
 	@$(ZIP) data/lambda data/lambda
 
 bindata: lambda
-	@go get github.com/jteeuwen/go-bindata/...
+	@go get github.com/jteeuwen/go-bindata
 	@go-bindata -modtime $(TIMESTAMP) -nocompress -pkg infrastructure -o infrastructure/bindata.go data/lambda.zip
 
 linux64: bindata

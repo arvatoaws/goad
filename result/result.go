@@ -6,8 +6,8 @@ import (
 	"time"
 	"sync"
 
-	"github.com/goadapp/goad/api"
-	"github.com/goadapp/goad/goad/util"
+	"github.com/JanBerktold/goad/api"
+	"github.com/JanBerktold/goad/goad/util"
 )
 
 // AggData type

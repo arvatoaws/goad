@@ -1,0 +1,40 @@
+module github.com/JanBerktold/goad
+
+require (
+	github.com/Microsoft/go-winio v0.4.2
+	github.com/Sirupsen/logrus v0.0.0-20170515105910-5e5dc898656f
+	github.com/Songmu/prompter v0.0.0-20150725163906-b5721e8d5566
+	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
+	github.com/aws/aws-sdk-go v1.10.25
+	github.com/davecgh/go-spew v0.0.0-20151105211317-5215b55f46b2
+	github.com/docker/distribution v0.0.0-20170524205824-1e2f10eb6574
+	github.com/docker/docker v0.0.0-20170512132317-c307f4521edc
+	github.com/docker/go-connections v0.0.0-20170331145122-e15c02316c12
+	github.com/docker/go-units v0.3.2
+	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7
+	github.com/dustin/go-humanize v0.0.0-20151125214831-8929fe90cee4
+	github.com/go-ini/ini v1.8.6
+	github.com/gorilla/context v1.1.1
+	github.com/gorilla/mux v0.0.0-20170524010104-043ee6597c29
+	github.com/gorilla/websocket v0.0.0-20160313191446-e2e3d8414d0f
+	github.com/jmespath/go-jmespath v0.0.0-20151208071831-c01cf91b0118
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
+	github.com/mattn/go-isatty v0.0.2
+	github.com/mattn/go-runewidth v0.0.0-20160109114248-e882a96ec18d
+	github.com/nsf/termbox-go v0.0.0-20160122232915-362329b0aa64
+	github.com/opencontainers/go-digest v0.0.0-20170510163354-eaa60544f31c
+	github.com/pkg/errors v0.0.0-20170505043639-c605e284fe17
+	github.com/pmezard/go-difflib v1.0.0
+	github.com/satori/go.uuid v0.0.0-20151028231719-d41af8bb6a77
+	github.com/spf13/afero v0.0.0-20170217164146-9be650865eab
+	github.com/streadway/amqp v0.0.0-20170521212453-dfe15e360485
+	github.com/stretchr/testify v1.1.3
+	golang.org/x/crypto v0.0.0-20170719141201-4d70248d17d1
+	golang.org/x/net v0.0.0-20170424220842-da118f7b8e59
+	golang.org/x/sys v0.0.0-20170529185110-b90f89a1e7a9
+	golang.org/x/text v0.0.0-20170706130353-cfdf022e86b4
+	gopkg.in/alecthomas/kingpin.v2 v2.2.3
+	gopkg.in/ini.v1 v1.27.0
+	gopkg.in/matryer/try.v1 v1.0.0-20150601225556-312d2599e12e
+)

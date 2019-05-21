@@ -10,8 +10,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/goadapp/goad/goad/types"
-	"github.com/goadapp/goad/infrastructure/aws/sqsadapter"
+	"github.com/JanBerktold/goad/goad/types"
+	"github.com/JanBerktold/goad/infrastructure/aws/sqsadapter"
 
 	"github.com/Songmu/prompter"
 	"github.com/aws/aws-sdk-go/aws"
@@ -20,9 +20,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/sqs"
-	"github.com/goadapp/goad/infrastructure"
-	"github.com/goadapp/goad/result"
-	"github.com/goadapp/goad/version"
+	"github.com/JanBerktold/goad/infrastructure"
+	"github.com/JanBerktold/goad/result"
+	"github.com/JanBerktold/goad/version"
 	uuid "github.com/satori/go.uuid"
 )
 
