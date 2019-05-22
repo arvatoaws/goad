@@ -189,7 +189,7 @@ func (infra *AwsInfrastructure) createLambdaFunction(svc *lambda.Lambda, roleArn
 		Runtime:      aws.String("nodejs8.10"),
 		MemorySize:   aws.Int64(1536),
 		Publish:      aws.Bool(true),
-		Timeout:      aws.Int64(300),
+		Timeout:      aws.Int64(900),
 	})
 	if err != nil {
 		return err

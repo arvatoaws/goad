@@ -51,7 +51,7 @@ var (
 	runnerID                      = app.Flag("runner-id", "A id to identifiy this lambda function").Required().Int()
 )
 
-const AWS_MAX_TIMEOUT = 295
+const AWS_MAX_TIMEOUT = 895
 
 func main() {
 	lambdaSettings := parseLambdaSettings()
