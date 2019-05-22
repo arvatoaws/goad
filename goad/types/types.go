@@ -24,6 +24,7 @@ var supportedRegions = []string{
 	"ap-southeast-1", // Singapore
 	"ap-southeast-2", // Sydney
 	"sa-east-1",      // Sao Paulo
+	"ca-central-1",   // Canada"
 }
 
 // TestConfig type
