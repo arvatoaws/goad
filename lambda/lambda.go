@@ -17,95 +17,36 @@ import (
 	"sync"
 	"time"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
-
+	"github.com/JanBerktold/goad/api"
+	"github.com/JanBerktold/goad/infrastructure/aws/sqsadapter"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/lambda/lambdaiface"
-	"github.com/JanBerktold/goad/api"
-	"github.com/JanBerktold/goad/infrastructure/aws/sqsadapter"
-	"github.com/JanBerktold/goad/version"
 	"github.com/streadway/amqp"
-)
 
-var (
-	app = kingpin.New("goad-lambda", "Utility deployed into aws lambda by goad")
-
-	address        = app.Arg("url", "URL to load test").Required().String()
-	requestMethod  = app.Flag("method", "HTTP method").Short('m').Default("GET").String()
-	requestBody    = app.Flag("body", "HTTP request body").Short('b').String()
-	requestHeaders = app.Flag("header", "List of headers").Short('H').Strings()
-
-	awsRegion   = app.Flag("aws-region", "AWS region to run in").Short('r').String()
-	queueRegion = app.Flag("queue-region", "SQS queue region").Short('q').String()
-	sqsURL      = app.Flag("sqsurl", "SQS URL").String()
-
-	clientTimeout      = app.Flag("client-timeout", "Request timeout duration").Short('s').Default("15s").Duration()
-	reportingFrequency = app.Flag("frequency", "Reporting frequency in seconds").Short('f').Default("15s").Duration()
-
-	concurrencyCount              = app.Flag("concurrency", "Number of concurrent requests").Short('c').Default("10").Int()
-	maxRequestCount               = app.Flag("requests", "Total number of requests to make").Short('n').Default("10").Int()
-	previousCompletedRequestCount = app.Flag("completed-count", "Number of requests already completed in case of lambda timeout").Short('p').Default("0").Int()
-	execTimeout                   = app.Flag("execution-time", "Maximum execution time in seconds").Short('t').Default("0").Int()
-	runnerID                      = app.Flag("runner-id", "A id to identifiy this lambda function").Required().Int()
+	awslambda "github.com/aws/aws-lambda-go/lambda"
 )
 
 const AWS_MAX_TIMEOUT = 895
 
-func main() {
-	lambdaSettings := parseLambdaSettings()
-	Lambda := newLambda(lambdaSettings)
+func HandleRequest(settings api.LambdaSettings) (error) {
+	fmt.Printf("Running with %+v\n", settings)
+
+	Lambda := newLambda(settings)
 	Lambda.runLoadTest()
+
+	return nil
 }
 
-func parseLambdaSettings() LambdaSettings {
-	app.HelpFlag.Short('h')
-	app.Version(version.String())
-	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	requestParameters := requestParameters{
-		URL:            *address,
-		RequestHeaders: *requestHeaders,
-		RequestMethod:  *requestMethod,
-		RequestBody:    *requestBody,
-	}
-
-	lambdaSettings := LambdaSettings{
-		ClientTimeout:         *clientTimeout,
-		SqsURL:                *sqsURL,
-		MaxRequestCount:       *maxRequestCount,
-		CompletedRequestCount: *previousCompletedRequestCount,
-		ConcurrencyCount:      *concurrencyCount,
-		QueueRegion:           *queueRegion,
-		LambdaRegion:          *awsRegion,
-		ReportingFrequency:    *reportingFrequency,
-		RequestParameters:     requestParameters,
-		StresstestTimeout:     *execTimeout,
-		RunnerID:              *runnerID,
-	}
-	return lambdaSettings
-}
-
-// LambdaSettings represent the Lambdas configuration
-type LambdaSettings struct {
-	LambdaExecTimeoutSeconds int
-	SqsURL                   string
-	MaxRequestCount          int
-	CompletedRequestCount    int
-	StresstestTimeout        int
-	ConcurrencyCount         int
-	QueueRegion              string
-	LambdaRegion             string
-	ReportingFrequency       time.Duration
-	ClientTimeout            time.Duration
-	RequestParameters        requestParameters
-	RunnerID                 int
+func main() {
+	awslambda.Start(HandleRequest)
 }
 
 // goadLambda holds the current state of the execution
 type goadLambda struct {
-	Settings      LambdaSettings
+	Settings      api.LambdaSettings
 	HTTPClient    *http.Client
 	Metrics       *requestMetric
 	lambdaService lambdaiface.LambdaAPI
@@ -114,14 +55,6 @@ type goadLambda struct {
 	jobs          chan struct{}
 	StartTime     time.Time
 	wg            sync.WaitGroup
-}
-
-type requestParameters struct {
-	URL            string
-	Requestcount   int
-	RequestMethod  string
-	RequestBody    string
-	RequestHeaders []string
 }
 
 type requestResult struct {
@@ -197,7 +130,7 @@ func (l *goadLambda) runLoadTest() {
 
 // newLambda creates a new Lambda to execute a load test from a given
 // LambdaSettings
-func newLambda(s LambdaSettings) *goadLambda {
+func newLambda(s api.LambdaSettings) *goadLambda {
 	setLambdaExecTimeout(&s)
 	setDefaultConcurrencyCount(&s)
 
@@ -217,13 +150,13 @@ func newLambda(s LambdaSettings) *goadLambda {
 	return l
 }
 
-func setDefaultConcurrencyCount(s *LambdaSettings) {
+func setDefaultConcurrencyCount(s *api.LambdaSettings) {
 	if s.ConcurrencyCount < 1 {
 		s.ConcurrencyCount = 1
 	}
 }
 
-func setLambdaExecTimeout(s *LambdaSettings) {
+func setLambdaExecTimeout(s *api.LambdaSettings) {
 	if s.StresstestTimeout <= 0 || s.StresstestTimeout > AWS_MAX_TIMEOUT {
 		s.LambdaExecTimeoutSeconds = AWS_MAX_TIMEOUT
 	} else {
@@ -351,7 +284,7 @@ func work(l *goadLambda) {
 	}
 }
 
-func fetch(client *http.Client, p requestParameters, loadTestStartTime time.Time) requestResult {
+func fetch(client *http.Client, p api.RequestParameters, loadTestStartTime time.Time) requestResult {
 	start := time.Now()
 	req := prepareHttpRequest(p)
 	response, err := client.Do(req)
@@ -428,7 +361,7 @@ func fetch(client *http.Client, p requestParameters, loadTestStartTime time.Time
 	return result
 }
 
-func prepareHttpRequest(params requestParameters) *http.Request {
+func prepareHttpRequest(params api.RequestParameters) *http.Request {
 	req, err := http.NewRequest(params.RequestMethod, params.URL, bytes.NewBufferString(params.RequestBody))
 	if err != nil {
 		fmt.Println("Error creating the HTTP request:", err)
@@ -543,9 +476,8 @@ func (m *requestMetric) resetAndKeepTotalReqs() {
 
 func (l *goadLambda) forkNewLambda() {
 	svc := l.provideLambdaService()
-	args := l.getInvokeArgsForFork()
 
-	j, _ := json.Marshal(args)
+	j, _ := json.Marshal(l.Settings)
 
 	output, err := svc.Invoke(&lambda.InvokeInput{
 		FunctionName: aws.String("goad"),
@@ -560,40 +492,6 @@ func (l *goadLambda) provideLambdaService() lambdaiface.LambdaAPI {
 		l.lambdaService = lambda.New(session.New(), aws.NewConfig().WithRegion(l.Settings.LambdaRegion))
 	}
 	return l.lambdaService
-}
-
-func (l *goadLambda) getInvokeArgsForFork() invokeArgs {
-	args := newLambdaInvokeArgs()
-	settings := l.Settings
-	params := settings.RequestParameters
-	args.Flags = []string{
-		fmt.Sprintf("--concurrency=%s", strconv.Itoa(settings.ConcurrencyCount)),
-		fmt.Sprintf("--requests=%s", strconv.Itoa(settings.MaxRequestCount)),
-		fmt.Sprintf("--completed-count=%s", strconv.Itoa(l.Settings.CompletedRequestCount)),
-		fmt.Sprintf("--execution-time=%s", strconv.Itoa(settings.StresstestTimeout)),
-		fmt.Sprintf("--sqsurl=%s", settings.SqsURL),
-		fmt.Sprintf("--queue-region=%s", settings.QueueRegion),
-		fmt.Sprintf("--client-timeout=%s", settings.ClientTimeout),
-		fmt.Sprintf("--runner-id=%d", settings.RunnerID),
-		fmt.Sprintf("--frequency=%s", settings.ReportingFrequency),
-		fmt.Sprintf("--aws-region=%s", settings.LambdaRegion),
-		fmt.Sprintf("--method=%s", settings.RequestParameters.RequestMethod),
-		fmt.Sprintf("--body=%s", settings.RequestParameters.RequestBody),
-	}
-	args.Flags = append(args.Flags, fmt.Sprintf("%s", params.URL))
-	fmt.Println(args.Flags)
-	return args
-}
-
-type invokeArgs struct {
-	File  string   `json:"file"`
-	Flags []string `json:"args"`
-}
-
-func newLambdaInvokeArgs() invokeArgs {
-	return invokeArgs{
-		File: "./goad-lambda",
-	}
 }
 
 // Min calculates minimum of two int64

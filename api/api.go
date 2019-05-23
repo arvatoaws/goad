@@ -20,3 +20,26 @@ type RunnerResult struct {
 	RequestCount     int            `json:"request-count"`
 	TimedOut         int            `json:"timed-out"`
 }
+
+type LambdaSettings struct {
+	LambdaExecTimeoutSeconds int
+	SqsURL                   string
+	MaxRequestCount          int
+	CompletedRequestCount    int
+	StresstestTimeout        int
+	ConcurrencyCount         int
+	QueueRegion              string
+	LambdaRegion             string
+	ReportingFrequency       time.Duration
+	ClientTimeout            time.Duration
+	RequestParameters        RequestParameters
+	RunnerID                 int
+}
+
+type RequestParameters struct {
+	URL            string
+	Requestcount   int
+	RequestMethod  string
+	RequestBody    string
+	RequestHeaders []string
+}

@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/JanBerktold/goad/api"
 	"os"
 	"path"
 	"time"
@@ -84,7 +85,7 @@ func (infra *AwsInfrastructure) Receive(results chan *result.LambdaResults) {
 	}
 }
 
-func (infra *AwsInfrastructure) Run(args infrastructure.InvokeArgs) {
+func (infra *AwsInfrastructure) Run(args api.LambdaSettings) {
 	infra.invokeLambda(args)
 }
 
@@ -184,9 +185,9 @@ func (infra *AwsInfrastructure) createLambdaFunction(svc *lambda.Lambda, roleArn
 			ZipFile: payload,
 		},
 		FunctionName: aws.String("goad"),
-		Handler:      aws.String("index.handler"),
+		Handler:      aws.String("goad-lambda"),
 		Role:         aws.String(roleArn),
-		Runtime:      aws.String("nodejs8.10"),
+		Runtime:      aws.String("go1.x"),
 		MemorySize:   aws.Int64(1536),
 		Publish:      aws.Bool(true),
 		Timeout:      aws.Int64(900),

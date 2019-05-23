@@ -1,9 +1,8 @@
 package infrastructure
 
 import (
-	"fmt"
+	"github.com/JanBerktold/goad/api"
 	"math"
-	"strconv"
 	"time"
 
 	"github.com/JanBerktold/goad/goad/types"
@@ -14,7 +13,7 @@ const DefaultRunnerAsset = "data/lambda.zip"
 
 type Infrastructure interface {
 	Setup() (teardown func(), err error)
-	Run(args InvokeArgs)
+	Run(settings api.LambdaSettings)
 	GetQueueURL() string
 	Receive(chan *result.LambdaResults)
 	GetSettings() *types.TestConfig
@@ -38,31 +37,27 @@ func InvokeLambdas(inf Infrastructure) {
 			requests += requestsRemainder
 		}
 
-		args := []string{
-			fmt.Sprintf("--concurrency=%s", strconv.Itoa(int(concurrency))),
-			fmt.Sprintf("--requests=%s", strconv.Itoa(int(requests))),
-			fmt.Sprintf("--execution-time=%s", strconv.Itoa(int(execTimeout))),
-			fmt.Sprintf("--sqsurl=%s", inf.GetQueueURL()),
-			fmt.Sprintf("--queue-region=%s", t.Regions[0]),
-			fmt.Sprintf("--client-timeout=%s", time.Duration(t.Timeout)*time.Second),
-			fmt.Sprintf("--frequency=%s", reportingFrequency(t.Lambdas).String()),
-			fmt.Sprintf("--aws-region=%s", region),
-			fmt.Sprintf("--method=%s", t.Method),
-			fmt.Sprintf("--runner-id=%d", currentID),
-			fmt.Sprintf("--body=%s", t.Body),
+		settings := api.LambdaSettings{
+			SqsURL: inf.GetQueueURL(),
+			ConcurrencyCount:concurrency,
+			MaxRequestCount: requests,
+			StresstestTimeout:execTimeout,
+			QueueRegion:t.Regions[0],
+			LambdaRegion:region,
+			ReportingFrequency:reportingFrequency(t.Lambdas),
+			ClientTimeout:time.Duration(t.Timeout)*time.Second,
+			RunnerID:currentID,
+			RequestParameters:api.RequestParameters{
+				URL: t.URL,
+				RequestMethod: t.Method,
+				RequestBody: t.Body,
+				RequestHeaders: t.Headers,
+			},
 		}
+
 		currentID++
-		for _, v := range t.Headers {
-			args = append(args, fmt.Sprintf("--header=%s", v))
-		}
-		args = append(args, fmt.Sprintf("%s", t.URL))
 
-		invokeargs := InvokeArgs{
-			File: "./goad-lambda",
-			Args: args,
-		}
-
-		go inf.Run(invokeargs)
+		go inf.Run(settings)
 	}
 }
 

@@ -55,7 +55,7 @@ func New(config *goadtypes.TestConfig) infrastructure.Infrastructure {
 	return infra
 }
 
-func (i *dockerInfrastructure) Run(args infrastructure.InvokeArgs) {
+func (i *dockerInfrastructure) Run(args api.LambdaSettings) {
 	i.runAsDockerContainer(args)
 }
 

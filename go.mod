@@ -6,6 +6,7 @@ require (
 	github.com/Songmu/prompter v0.0.0-20150725163906-b5721e8d5566
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
+	github.com/aws/aws-lambda-go v1.10.0
 	github.com/aws/aws-sdk-go v1.10.25
 	github.com/davecgh/go-spew v0.0.0-20151105211317-5215b55f46b2
 	github.com/docker/distribution v0.0.0-20170524205824-1e2f10eb6574
